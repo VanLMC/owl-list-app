@@ -3,7 +3,7 @@ import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 
 const Stack = createStackNavigator();
 
-import AllLists from '../pages/Task/List';
+import AllLists from '../pages/TaskList/List';
 
 
 export default function Routes() {
