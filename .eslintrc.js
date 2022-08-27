@@ -8,6 +8,7 @@ module.exports = {
       files: ['*.ts', '*.tsx'],
       rules: {
         '@typescript-eslint/no-shadow': ['error'],
+        'comma-dangle': [2, 'always-multiline'],
         'no-shadow': 'off',
         'no-undef': 'off',
       },

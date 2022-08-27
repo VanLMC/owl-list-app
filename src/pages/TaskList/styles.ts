@@ -8,7 +8,7 @@ export const ListItemText = styled.Text`
   margin-left: 20px;
 `;
 
-export const TaskListsContainer = styled.ScrollView`
+export const TaskListsContainer = styled.View`
   padding: 20px;
 `;
 

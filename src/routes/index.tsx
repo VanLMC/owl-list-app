@@ -3,8 +3,8 @@ import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 
 const Stack = createStackNavigator();
 
-import AllLists from '../pages/TaskList/List';
-
+import TaskLists from '../pages/TaskList';
+import Tasks from '../pages/Task/List';
 
 export default function Routes() {
   const options = {
@@ -14,7 +14,8 @@ export default function Routes() {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="AllLists" component={AllLists} options={options} />
+      <Stack.Screen name="TaskLists" component={TaskLists} options={options} />
+      <Stack.Screen name="Tasks" component={Tasks} options={options} />
     </Stack.Navigator>
   );
 }
