@@ -23,16 +23,11 @@ import {
   CancelButtonText,
   Loader,
 } from './styles';
-
+import {Task, TaskList} from '../../types';
 import {getRealm} from '../../databases/realm';
 // import Icon from 'react-native-vector-icons/Feather';
 //Todo: get icons to work
 //Todo: refactor to componetize and remove unnecessary stuff
-
-type TaskList = {
-  id: string | number[];
-  name: string;
-};
 
 export default function AllLists({navigation}: any) {
   let backgroundImage = require('../../assets/tasklist-city.jpg');
@@ -92,9 +87,18 @@ export default function AllLists({navigation}: any) {
       const selectedTaskList = realm
         .objects<TaskList>('TaskList')
         .filtered(`id = '${id}'`)[0];
+
+      const taskListTasks = realm
+        .objects<Task[]>('Task')
+        .filtered(`tasklist_id = '${id}'`);
+
+      realm.write(() => {
+        realm.delete(taskListTasks);
+      });
       realm.write(() => {
         realm.delete(selectedTaskList);
       });
+
       const updatedTasklists = taskLists.filter(
         (taskList: TaskList) => taskList.id !== id,
       );
@@ -107,8 +111,6 @@ export default function AllLists({navigation}: any) {
   };
 
   const handleDelete = async (id: string) => {
-    //Todo: Remember to delete tasks in cascade
-    console.log('Delete');
     Alert.alert('Delete this Tasklist?', '', [
       {
         text: 'Cancel',
@@ -194,14 +196,11 @@ export default function AllLists({navigation}: any) {
           <FlatList
             data={taskLists}
             renderItem={({item}) => (
-              <ListItem onPress={() => handleNavigateToList(item.id)}>
+              <ListItem
+                onPress={() => handleNavigateToList(item.id)}
+                delayLongPress={1000}
+                onLongPress={() => handleDelete(item.id)}>
                 <ListItemText>{item.name}</ListItemText>
-                {/* <Icon name="trash" size={30} color="#c5adc7" /> */}
-                <TouchableOpacity
-                  style={{marginLeft: 'auto', marginRight: 20}}
-                  onPress={() => handleDelete(item.id)}>
-                  <ListItemText>Delete</ListItemText>
-                </TouchableOpacity>
               </ListItem>
             )}
             keyExtractor={item => item.id}

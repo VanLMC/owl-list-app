@@ -16,27 +16,13 @@ import {
   ListItemDate,
   Column,
 } from './styles';
-import {
-  TouchableOpacity,
-  Text,
-  ScrollView,
-  ImageBackground,
-  FlatList,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
+import {TouchableOpacity, ImageBackground, FlatList} from 'react-native';
 
-type Task = {
-  id: string | number[];
-  title: string;
-  description: string;
-  created_at: Date;
-  due_at: Date;
-  tasklist_id: string;
-  // tasklist: {type: 'Tasklist'};
-};
+import {Task} from '../../../types';
 
 export default function ListTasks({route, navigation}) {
   const {taskListId} = route.params;
+  //const taskListId = '070efa23-40fc-4313-ad4e-6ec19ba92500';
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [taskInput, setTaskInput] = useState('');
@@ -53,9 +39,8 @@ export default function ListTasks({route, navigation}) {
     const realm = await getRealm();
     setLoading(true);
     try {
-      let createdTask: Task;
       realm.write(() => {
-        createdTask = realm.create<Task>('Task', {
+        realm.create<Task>('Task', {
           id: uuid.v4(),
           title: taskInput,
           description: 'description',

@@ -1,5 +1,5 @@
-import styled, { css } from 'styled-components/native';
-import { RectButton } from 'react-native-gesture-handler';
+import styled, {css} from 'styled-components/native';
+import {RectButton} from 'react-native-gesture-handler';
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
 `;
@@ -13,6 +13,7 @@ export const TaskListsContainer = styled.View`
 `;
 
 export const ListItem = styled(RectButton)`
+  border: 1px solid black;
   display: flex;
   align-items: center;
   flex-direction: row;
@@ -21,7 +22,7 @@ export const ListItem = styled(RectButton)`
   height: 50px;
   margin-top: 2px;
 
-  ${(props) =>
+  ${props =>
     props.done &&
     css`
       background-color: #bcf3de;
