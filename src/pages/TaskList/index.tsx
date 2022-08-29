@@ -198,7 +198,7 @@ export default function AllLists({navigation}: any) {
             renderItem={({item}) => (
               <ListItem
                 onPress={() => handleNavigateToList(item.id)}
-                delayLongPress={1000}
+                delayLongPress={500}
                 onLongPress={() => handleDelete(item.id)}>
                 <ListItemText>{item.name}</ListItemText>
               </ListItem>
