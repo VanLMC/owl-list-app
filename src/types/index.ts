@@ -1,10 +1,10 @@
 export type TaskList = {
-  id: string | number[];
+  id: string;
   name: string;
 };
 
 export type Task = {
-  id: string | number[];
+  id: string;
   title: string;
   description: string;
   created_at: Date;

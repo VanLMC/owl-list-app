@@ -1,35 +1,41 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {getRealm} from '../../../databases/realm';
 import uuid from 'react-native-uuid';
 import {Keyboard} from 'react-native';
 import {
-  ListContainer,
   ListItem,
   ListItemText,
   TaskInputContainer,
   TaskInput,
   TaskInputText,
   CheckContainer,
-  Badge,
   Container,
   Loader,
-  ListItemDate,
-  Column,
+  DeleteButton,
+  Background,
 } from './styles';
-import {TouchableOpacity, ImageBackground, FlatList} from 'react-native';
+import {TouchableOpacity, FlatList} from 'react-native';
 
 import {Task} from '../../../types';
 
-export default function ListTasks({route, navigation}) {
+interface RouteParams {
+  taskListId: string;
+}
+
+interface ListTasksProps {
+  route: {
+    params: RouteParams;
+  };
+}
+
+export default function ListTasks({route}: ListTasksProps) {
   const {taskListId} = route.params;
-  //const taskListId = '070efa23-40fc-4313-ad4e-6ec19ba92500';
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [taskInput, setTaskInput] = useState('');
 
-  // const [showDoneTasks, setShowDoneTasks] = useState(false);
   const backgroundImage = require('../../../assets/tasklist-city.jpg');
-  // const now = new Date();
 
   const createTask = async () => {
     if (!taskInput) {
@@ -41,7 +47,7 @@ export default function ListTasks({route, navigation}) {
     try {
       realm.write(() => {
         realm.create<Task>('Task', {
-          id: uuid.v4(),
+          id: uuid.v4().toString(),
           title: taskInput,
           description: 'description',
           due_at: new Date(),
@@ -60,7 +66,7 @@ export default function ListTasks({route, navigation}) {
     }
   };
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     const realm = await getRealm();
 
     try {
@@ -76,12 +82,12 @@ export default function ListTasks({route, navigation}) {
       realm.close();
       setLoading(false);
     }
-  };
+  }, [taskListId]);
 
   //Todo: useFocusEffect for when it is navigating to other pages
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const deleteTask = async (id: string | number[]) => {
     const realm = await getRealm();
@@ -101,93 +107,9 @@ export default function ListTasks({route, navigation}) {
     }
   };
 
-  // const addTask = async () => {
-  //   try {
-  //     if (!taskInput) {
-  //       return;
-  //     }
-  //     const newTask = {
-  //       tasklist_id: taskListId,
-  //       text: taskInput,
-  //       end: null,
-  //     };
-
-  //     setLoading(true);
-  //     const response = await api
-  //       .post('/task', newTask)
-  //       .then(() => dispatch(requestTaskLists()))
-  //       .catch((err) => console.log(err))
-  //       .finally(() => setLoading(false));
-
-  //     setTaskInput('');
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-
-  // const completeTask = async (taskId: number) => {
-  //   try {
-  //     setTasks(
-  //       tasks.map((task) => {
-  //         if (task.id === taskId) {
-  //           task.status = 'done';
-  //         }
-  //         return task;
-  //       }),
-  //     );
-
-  //     await api.post('/toogle-task', {task_id: taskId});
-  //   } catch (error) {
-  //     setTasks(
-  //       tasks.map((task) => {
-  //         if (task.id === taskId) {
-  //           task.status = 'new';
-  //         }
-  //         return task;
-  //       }),
-  //     );
-  //     console.log(error);
-  //   }
-  // };
-
-  // const uncompleteTask = async (taskId: number) => {
-  //   try {
-  //     await api.post('/toogle-task', {task_id: taskId});
-
-  //     setTasks(
-  //       tasks.map((task) => {
-  //         if (task.id === taskId) {
-  //           task.status = 'new';
-  //         }
-  //         return task;
-  //       }),
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // const toggleShowDoneTasks = () => {
-  //   setShowDoneTasks(!showDoneTasks);
-  // };
-
-  // const handleShowDetails = (task) => {
-  //   console.log('handleShowDetails');
-  //   //console.log(task);
-  //   navigation.navigate('TaskDetails', {task: task});
-  // };
-
-  // useEffect(() => {
-  //   const updatedTasks = tasklists ? tasklists[taskListIndex].tasks : [];
-  //   setTasks(updatedTasks);
-  // }, [tasklists]);
-
   return (
     <Container>
-      <ImageBackground
-        source={backgroundImage}
-        resizeMode={'cover'}
-        style={{flex: 1, height: '100%'}}>
+      <Background source={backgroundImage} resizeMode={'cover'}>
         <TaskInputContainer>
           <TaskInput
             defaultValue={taskInput}
@@ -204,84 +126,20 @@ export default function ListTasks({route, navigation}) {
           )}
         </TaskInputContainer>
 
-        {/* <Badge>
-          <TouchableOpacity onPress={toggleShowDoneTasks}>
-            <Text>Mostrar Tarefas Concluídas</Text>
-          </TouchableOpacity>
-        </Badge> */}
-
-        {/* {loadingTasks ? (
-          <Loader size="large" color="#c5adc7" />
-        ) : (
-          <ListContainer>
-            <ScrollView>
-              {tasks &&
-                tasks.map((task) => {
-                  const parsedTaskEnd = task.end ? task.end : null;
-                  const taskEnd = task.end
-                    ? moment(parsedTaskEnd).format('DD/MM/YY HH:MM')
-                    : null;
-
-                  const isBefore =
-                    task.end && now > parsedTaskEnd ? true : false;
-
-                  return (
-                    task.status === 'new' &&
-                    !showDoneTasks && (
-                      <ListItem
-                        activeOpacity={0.9}
-                        key={task.id}
-                        onPress={() => handleShowDetails(task)}>
-                        <CheckContainer onPress={() => completeTask(task.id)}>
-                          <Icon name="check-square" size={32} color="#c5adc7" />
-                        </CheckContainer>
-
-                        <Column>
-                          <ListItemText>{task.text}</ListItemText>
-                          <ListItemDate isBefore={isBefore}>
-                            {taskEnd && taskEnd}
-                          </ListItemDate>
-                        </Column>
-                      </ListItem>
-                    )
-                  );
-                })}
-
-              {tasks &&
-                tasks.map(
-                  (task) =>
-                    task.status === 'done' &&
-                    showDoneTasks && (
-                      <ListItem done key={task.id} activeOpacity={0.7}>
-                        <CheckContainer onPress={() => uncompleteTask(task.id)}>
-                          <Icon name="check-square" size={32} color="#c5adc7" />
-                        </CheckContainer>
-                        <ListItemText>{task.text}</ListItemText>
-                      </ListItem>
-                    ),
-                )}
-            </ScrollView>
-          </ListContainer>
-        )} */}
-
         <FlatList
           data={tasks}
           renderItem={({item}) => (
             <ListItem done key={item?.id} activeOpacity={0.7}>
-              <CheckContainer onPress={() => {}}>
-                {/* <Icon name="check-square" size={32} color="#c5adc7" /> */}
-              </CheckContainer>
+              <CheckContainer onPress={() => {}} />
               <ListItemText>{item.title}</ListItemText>
-              <TouchableOpacity
-                style={{marginLeft: 'auto', marginRight: 20}}
-                onPress={() => deleteTask(item.id)}>
+              <DeleteButton onPress={() => deleteTask(item.id)}>
                 <ListItemText>Delete</ListItemText>
-              </TouchableOpacity>
+              </DeleteButton>
             </ListItem>
           )}
           keyExtractor={item => item.id}
         />
-      </ImageBackground>
+      </Background>
     </Container>
   );
 }
