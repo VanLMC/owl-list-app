@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import uuid from 'react-native-uuid';
-import {Text, Modal, TouchableOpacity, FlatList, Alert} from 'react-native';
+import {Text, TouchableOpacity, FlatList, Alert} from 'react-native';
 import {getRealm} from '../../databases/realm';
 import {NavigationProp} from '@react-navigation/native';
 import Background from '../../components/Background';
@@ -10,19 +10,12 @@ import {
   ListItemText,
   TaskListsContainer,
   CreateNewListButton,
-  ModalContainer,
-  TaskInputContainer,
-  TaskListInput,
-  TaskListInputText,
-  CancelButton,
-  CancelButtonText,
-  Loader,
 } from './styles';
 import {Task, TaskList} from '../../types';
+import NewTaskListModal from './NewTaskListModal';
 
 // import Icon from 'react-native-vector-icons/Feather';
 //Todo: get icons to work
-//Todo: refactor to componetize and remove unnecessary stuff
 
 export interface AllListsProps {
   navigation: NavigationProp<any, any>;
@@ -32,8 +25,6 @@ export default function AllLists({navigation}: AllListsProps) {
   const [loading, setLoading] = useState(false);
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-
-  const [newTaskListName, setNewTaskListName] = useState('');
 
   const fetchTaskLists = async () => {
     const realm = await getRealm();
@@ -98,7 +89,7 @@ export default function AllLists({navigation}: AllListsProps) {
     navigation.navigate('Tasks', {taskListId});
   };
 
-  const createTaskList = async () => {
+  const createTaskList = async (newTaskListName: string) => {
     const realm = await getRealm();
     try {
       setLoading(true);
@@ -115,8 +106,6 @@ export default function AllLists({navigation}: AllListsProps) {
         ...value,
         {id: createdTasklist.id, name: createdTasklist.name},
       ]);
-      setNewTaskListName('');
-      setModalVisible(false);
     } catch (err) {
       console.log(err);
     } finally {
@@ -127,35 +116,12 @@ export default function AllLists({navigation}: AllListsProps) {
 
   return (
     <Container>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <ModalContainer>
-          <TaskInputContainer>
-            <TaskListInput
-              defaultValue={newTaskListName}
-              onChangeText={(value: any) => {
-                setNewTaskListName(value);
-              }}
-            />
-            {loading ? (
-              <Loader size="large" color="#c5adc7" />
-            ) : (
-              <TouchableOpacity onPress={createTaskList}>
-                <TaskListInputText>+</TaskListInputText>
-              </TouchableOpacity>
-            )}
-          </TaskInputContainer>
-
-          <CancelButton onPress={() => setModalVisible(!modalVisible)}>
-            <CancelButtonText>Cancelar</CancelButtonText>
-          </CancelButton>
-        </ModalContainer>
-      </Modal>
+      <NewTaskListModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        submit={createTaskList}
+        loading={loading}
+      />
 
       <Background>
         <TaskListsContainer>
