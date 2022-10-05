@@ -7,6 +7,7 @@ export const TaskSchema = {
     created_at: 'date',
     due_at: 'date',
     tasklist_id: 'string',
+    done: 'bool',
   },
   primaryKey: 'id',
 };

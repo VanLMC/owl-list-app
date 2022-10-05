@@ -51,10 +51,6 @@ export const Container = styled.KeyboardAvoidingView`
   flex: 1;
 `;
 
-export const ListItemText = styled.Text`
-  margin-left: 10px;
-`;
-
 export const CheckContainer = styled.TouchableOpacity`
   padding-left: 10px;
   height: 100%;
@@ -63,11 +59,6 @@ export const CheckContainer = styled.TouchableOpacity`
 
 export const Loader = styled.ActivityIndicator`
   margin: 50% auto 0 auto;
-`;
-
-export const DeleteButton = styled.TouchableOpacity`
-  margin-left: auto;
-  margin-right: 20px;
 `;
 
 export const Background = styled.ImageBackground`

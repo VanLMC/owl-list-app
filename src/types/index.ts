@@ -10,4 +10,5 @@ export type Task = {
   created_at: Date;
   due_at: Date;
   tasklist_id: string;
+  done: boolean;
 };

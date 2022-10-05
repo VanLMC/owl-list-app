@@ -1,21 +1,21 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect, useCallback} from 'react';
 import {getRealm} from '../../../databases/realm';
 import uuid from 'react-native-uuid';
-import {Keyboard} from 'react-native';
+import {Keyboard, Alert} from 'react-native';
 import {
   ListItem,
-  ListItemText,
   TaskInputContainer,
   TaskInput,
   TaskInputText,
   CheckContainer,
   Container,
   Loader,
-  DeleteButton,
 } from './styles';
 import {TouchableOpacity, FlatList} from 'react-native';
 import Background from '../../../components/Background';
 import {Task} from '../../../types';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
 interface RouteParams {
   taskListId: string;
@@ -26,6 +26,8 @@ interface ListTasksProps {
     params: RouteParams;
   };
 }
+
+const checkFillColor = '#fed7b8';
 
 export default function ListTasks({route}: ListTasksProps) {
   const {taskListId} = route.params;
@@ -50,6 +52,7 @@ export default function ListTasks({route}: ListTasksProps) {
           due_at: new Date(),
           created_at: new Date(),
           tasklist_id: taskListId,
+          done: false,
         });
       });
 
@@ -104,6 +107,39 @@ export default function ListTasks({route}: ListTasksProps) {
     }
   };
 
+  const toggleCheck = async (id: string) => {
+    const realm = await getRealm();
+
+    try {
+      const selectedTask = realm
+        .objects<Task>('Task')
+        .filtered(`id = '${id}'`)[0];
+      const newTask = {
+        ...selectedTask,
+        done: !selectedTask.done,
+      };
+      realm.write(() => {
+        newTask;
+      });
+
+      fetchTasks();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    Alert.alert('Delete this Task?', '', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Yes', onPress: () => deleteTask(id)},
+    ]);
+  };
+
+  console.log(tasks);
   return (
     <Container>
       <Background>
@@ -126,12 +162,25 @@ export default function ListTasks({route}: ListTasksProps) {
         <FlatList
           data={tasks}
           renderItem={({item}) => (
-            <ListItem done key={item?.id} activeOpacity={0.7}>
+            <ListItem
+              key={item?.id}
+              activeOpacity={0.7}
+              delayLongPress={500}
+              onLongPress={() => handleDelete(item.id)}>
               <CheckContainer onPress={() => {}} />
-              <ListItemText>{item.title}</ListItemText>
-              <DeleteButton onPress={() => deleteTask(item.id)}>
-                <ListItemText>Delete</ListItemText>
-              </DeleteButton>
+              <BouncyCheckbox
+                size={25}
+                fillColor={checkFillColor}
+                unfillColor={'#fff'}
+                text={item.title}
+                iconStyle={{borderColor: checkFillColor}}
+                innerIconStyle={{borderWidth: 2}}
+                textStyle={{fontFamily: 'JosefinSans-Regular'}}
+                isChecked={item.done}
+                onPress={() => {
+                  toggleCheck(item.id);
+                }}
+              />
             </ListItem>
           )}
           keyExtractor={item => item.id}
