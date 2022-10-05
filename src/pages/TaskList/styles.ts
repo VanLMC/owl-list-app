@@ -1,5 +1,10 @@
 import styled, {css} from 'styled-components/native';
 import {RectButton} from 'react-native-gesture-handler';
+
+interface ListItemProps {
+  done: boolean;
+}
+
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
 `;
@@ -12,7 +17,7 @@ export const TaskListsContainer = styled.View`
   padding: 20px;
 `;
 
-export const ListItem = styled(RectButton)`
+export const ListItem = styled(RectButton)<ListItemProps>`
   border: 1px solid black;
   display: flex;
   align-items: center;

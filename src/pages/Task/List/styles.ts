@@ -1,5 +1,9 @@
 import styled, {css} from 'styled-components/native';
 
+interface ListItemProps {
+  done: boolean;
+}
+
 export const TaskInputContainer = styled.View`
   width: 100%;
   height: 80px;
@@ -25,7 +29,7 @@ export const TaskInputText = styled.Text`
   color: #c5adc7;
 `;
 
-export const ListItem = styled.TouchableOpacity`
+export const ListItem = styled.TouchableOpacity<ListItemProps>`
   display: flex;
   flex-direction: row;
   align-items: center;
