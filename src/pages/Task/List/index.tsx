@@ -12,10 +12,9 @@ import {
   Container,
   Loader,
   DeleteButton,
-  Background,
 } from './styles';
 import {TouchableOpacity, FlatList} from 'react-native';
-
+import Background from '../../../components/Background';
 import {Task} from '../../../types';
 
 interface RouteParams {
@@ -34,8 +33,6 @@ export default function ListTasks({route}: ListTasksProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [taskInput, setTaskInput] = useState('');
-
-  const backgroundImage = require('../../../assets/tasklist-city.jpg');
 
   const createTask = async () => {
     if (!taskInput) {
@@ -109,7 +106,7 @@ export default function ListTasks({route}: ListTasksProps) {
 
   return (
     <Container>
-      <Background source={backgroundImage} resizeMode={'cover'}>
+      <Background>
         <TaskInputContainer>
           <TaskInput
             defaultValue={taskInput}

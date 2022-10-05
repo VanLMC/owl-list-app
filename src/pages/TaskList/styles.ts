@@ -2,7 +2,7 @@ import styled, {css} from 'styled-components/native';
 import {RectButton} from 'react-native-gesture-handler';
 
 interface ListItemProps {
-  done: boolean;
+  done?: boolean;
 }
 
 export const Container = styled.KeyboardAvoidingView`

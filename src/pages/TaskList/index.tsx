@@ -1,14 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import uuid from 'react-native-uuid';
-import {
-  ImageBackground,
-  Text,
-  Modal,
-  TouchableOpacity,
-  FlatList,
-  Alert,
-} from 'react-native';
-
+import {Text, Modal, TouchableOpacity, FlatList, Alert} from 'react-native';
+import {getRealm} from '../../databases/realm';
+import {NavigationProp} from '@react-navigation/native';
+import Background from '../../components/Background';
 import {
   Container,
   ListItem,
@@ -24,14 +19,16 @@ import {
   Loader,
 } from './styles';
 import {Task, TaskList} from '../../types';
-import {getRealm} from '../../databases/realm';
+
 // import Icon from 'react-native-vector-icons/Feather';
 //Todo: get icons to work
 //Todo: refactor to componetize and remove unnecessary stuff
 
-export default function AllLists({navigation}: any) {
-  let backgroundImage = require('../../assets/tasklist-city.jpg');
+export interface AllListsProps {
+  navigation: NavigationProp<any, any>;
+}
 
+export default function AllLists({navigation}: AllListsProps) {
   const [loading, setLoading] = useState(false);
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -56,30 +53,6 @@ export default function AllLists({navigation}: any) {
   useEffect(() => {
     fetchTaskLists();
   }, []);
-
-  const handleUpdate = async (id: string) => {
-    //Todo add funcionality to modal
-    const realm = await getRealm();
-
-    try {
-      const selectedTaskList = realm
-        .objects<TaskList>('TaskList')
-        .filtered(`id = '${id}'`)[0];
-      const newTaskList = {
-        ...selectedTaskList,
-        //put the stuff you wanna updte here
-      };
-      realm.write(() => {
-        newTaskList;
-      });
-
-      fetchTaskLists();
-    } catch (err) {
-      console.log(err);
-    } finally {
-      realm.close();
-    }
-  };
 
   const deleteTaskList = async (id: string) => {
     const realm = await getRealm();
@@ -133,7 +106,7 @@ export default function AllLists({navigation}: any) {
       let createdTasklist: TaskList;
       realm.write(() => {
         createdTasklist = realm.create<TaskList>('TaskList', {
-          id: uuid.v4(),
+          id: uuid.v4().toString(),
           name: newTaskListName,
         });
       });
@@ -184,10 +157,7 @@ export default function AllLists({navigation}: any) {
         </ModalContainer>
       </Modal>
 
-      <ImageBackground
-        source={backgroundImage}
-        resizeMode={'cover'}
-        style={{flex: 1, height: '100%'}}>
+      <Background>
         <TaskListsContainer>
           <CreateNewListButton onPress={() => setModalVisible(true)}>
             <Text>Criar nova lista</Text>
@@ -196,17 +166,19 @@ export default function AllLists({navigation}: any) {
           <FlatList
             data={taskLists}
             renderItem={({item}) => (
-              <ListItem
-                onPress={() => handleNavigateToList(item.id)}
+              <TouchableOpacity
+                activeOpacity={1}
                 delayLongPress={500}
                 onLongPress={() => handleDelete(item.id)}>
-                <ListItemText>{item.name}</ListItemText>
-              </ListItem>
+                <ListItem onPress={() => handleNavigateToList(item.id)}>
+                  <ListItemText>{item.name}</ListItemText>
+                </ListItem>
+              </TouchableOpacity>
             )}
             keyExtractor={item => item.id}
           />
         </TaskListsContainer>
-      </ImageBackground>
+      </Background>
     </Container>
   );
 }
