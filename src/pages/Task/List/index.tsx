@@ -114,12 +114,9 @@ export default function ListTasks({route}: ListTasksProps) {
       const selectedTask = realm
         .objects<Task>('Task')
         .filtered(`id = '${id}'`)[0];
-      const newTask = {
-        ...selectedTask,
-        done: !selectedTask.done,
-      };
+
       realm.write(() => {
-        newTask;
+        selectedTask.done = !selectedTask.done;
       });
 
       fetchTasks();
@@ -139,7 +136,6 @@ export default function ListTasks({route}: ListTasksProps) {
     ]);
   };
 
-  console.log(tasks);
   return (
     <Container>
       <Background>
