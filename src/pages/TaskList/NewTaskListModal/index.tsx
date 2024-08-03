@@ -3,7 +3,7 @@ import {Modal, TouchableOpacity} from 'react-native';
 interface ModalProps {
   modalVisible: boolean;
   setModalVisible: (value: boolean) => void;
-  submit: (value: string) => void;
+  submit: (tasklistName: string, isRecurrent: boolean) => void;
   loading: boolean;
 }
 
@@ -16,6 +16,9 @@ import {
   CancelButtonText,
   Loader,
 } from '../styles';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+
+const checkFillColor = '#c5adc7';
 
 export default function NewTaskListModal({
   modalVisible,
@@ -24,6 +27,7 @@ export default function NewTaskListModal({
   loading,
 }: ModalProps) {
   const [newTaskListName, setNewTaskListName] = useState('');
+  const [recurrentList, setRecurrentList] = useState(false);
   return (
     <Modal
       animationType="slide"
@@ -47,13 +51,29 @@ export default function NewTaskListModal({
               onPress={() => {
                 setNewTaskListName('');
                 setModalVisible(false);
-                submit(newTaskListName);
+                submit(newTaskListName, recurrentList);
               }}>
               <TaskListInputText>+</TaskListInputText>
             </TouchableOpacity>
           )}
         </TaskInputContainer>
-
+        <BouncyCheckbox
+          size={25}
+          fillColor={checkFillColor}
+          unfillColor={'#fff'}
+          text={'Lista recorrente'}
+          iconStyle={{borderColor: checkFillColor}}
+          innerIconStyle={{borderWidth: 2}}
+          // eslint-disable-next-line react-native/no-inline-styles
+          textStyle={{
+            fontFamily: 'JosefinSans-Regular',
+            textDecorationLine: 'none',
+          }}
+          isChecked={recurrentList}
+          onPress={() => {
+            setRecurrentList(value => !value);
+          }}
+        />
         <CancelButton onPress={() => setModalVisible(!modalVisible)}>
           <CancelButtonText>Cancelar</CancelButtonText>
         </CancelButton>

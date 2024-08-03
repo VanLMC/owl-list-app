@@ -3,6 +3,8 @@ export const TaskListSchema = {
   properties: {
     id: 'string',
     name: 'string',
+    isRecurrent: 'bool',
+    lastMonth: 'int',
   },
   primaryKey: 'id',
 };

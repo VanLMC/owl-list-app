@@ -1,6 +1,8 @@
 export type TaskList = {
   id: string;
   name: string;
+  isRecurrent: boolean;
+  lastMonth: number;
 };
 
 export type Task = {

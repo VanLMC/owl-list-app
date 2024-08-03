@@ -13,6 +13,7 @@ import {
 } from './styles';
 import {Task, TaskList} from '../../types';
 import NewTaskListModal from './NewTaskListModal';
+import getCurrentMonthNumber from '../../utils/getCurrentMonthNumber';
 
 // import Icon from 'react-native-vector-icons/Feather';
 //Todo: get icons to work
@@ -85,11 +86,14 @@ export default function AllLists({navigation}: AllListsProps) {
     ]);
   };
 
-  const handleNavigateToList = (taskListId: string) => {
-    navigation.navigate('Tasks', {taskListId});
+  const handleNavigateToList = (tasklist: TaskList) => {
+    navigation.navigate('Tasks', {tasklist});
   };
 
-  const createTaskList = async (newTaskListName: string) => {
+  const createTaskList = async (
+    newTaskListName: string,
+    isRecurrent: boolean,
+  ) => {
     const realm = await getRealm();
     try {
       setLoading(true);
@@ -99,12 +103,19 @@ export default function AllLists({navigation}: AllListsProps) {
         createdTasklist = realm.create<TaskList>('TaskList', {
           id: uuid.v4().toString(),
           name: newTaskListName,
+          isRecurrent,
+          lastMonth: getCurrentMonthNumber(),
         });
       });
 
       setTaskLists(value => [
         ...value,
-        {id: createdTasklist.id, name: createdTasklist.name},
+        {
+          id: createdTasklist.id,
+          name: createdTasklist.name,
+          isRecurrent: createdTasklist.isRecurrent,
+          lastMonth: createdTasklist.lastMonth,
+        },
       ]);
     } catch (err) {
       console.log(err);
@@ -136,7 +147,7 @@ export default function AllLists({navigation}: AllListsProps) {
                 activeOpacity={1}
                 delayLongPress={500}
                 onLongPress={() => handleDelete(item.id)}>
-                <ListItem onPress={() => handleNavigateToList(item.id)}>
+                <ListItem onPress={() => handleNavigateToList(item)}>
                   <ListItemText>{item.name}</ListItemText>
                 </ListItem>
               </TouchableOpacity>

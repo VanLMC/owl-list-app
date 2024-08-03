@@ -14,11 +14,12 @@ import {
 } from './styles';
 import {TouchableOpacity, FlatList} from 'react-native';
 import Background from '../../../components/Background';
-import {Task} from '../../../types';
+import {Task, TaskList} from '../../../types';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import getCurrentMonthNumber from '../../../utils/getCurrentMonthNumber';
 
 interface RouteParams {
-  taskListId: string;
+  tasklist: TaskList;
 }
 
 interface ListTasksProps {
@@ -27,10 +28,12 @@ interface ListTasksProps {
   };
 }
 
-const checkFillColor = '#fed7b8';
+const checkFillColor = '#c5adc7';
 
 export default function ListTasks({route}: ListTasksProps) {
-  const {taskListId} = route.params;
+  const {tasklist} = route.params;
+
+  const {id: taskListId, isRecurrent, lastMonth} = tasklist;
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,8 +69,31 @@ export default function ListTasks({route}: ListTasksProps) {
     }
   };
 
+  const resetTasks = useCallback(
+    async (realm: Realm) => {
+      try {
+        realm.write(() => {
+          const tasksToUpdate = realm
+            .objects<Task[]>('Task')
+            .filtered(`tasklist_id = '${taskListId}'`);
+
+          for (const task of tasksToUpdate) {
+            task.done = false;
+          }
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    [taskListId],
+  );
+
   const fetchTasks = useCallback(async () => {
     const realm = await getRealm();
+
+    if (isRecurrent && lastMonth !== getCurrentMonthNumber()) {
+      await resetTasks(realm);
+    }
 
     try {
       setLoading(true);
@@ -75,6 +101,7 @@ export default function ListTasks({route}: ListTasksProps) {
         .objects<Task[]>('Task')
         .filtered(`tasklist_id = '${taskListId}'`)
         .toJSON();
+
       setTasks(response);
     } catch (err) {
       console.log(err);
@@ -82,7 +109,7 @@ export default function ListTasks({route}: ListTasksProps) {
       realm.close();
       setLoading(false);
     }
-  }, [taskListId]);
+  }, [isRecurrent, lastMonth, resetTasks, taskListId]);
 
   //Todo: useFocusEffect for when it is navigating to other pages
   useEffect(() => {

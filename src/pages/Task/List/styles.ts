@@ -15,7 +15,7 @@ export const TaskInputContainer = styled.View`
 export const TaskInput = styled.TextInput`
   margin-left: 15px;
   height: 50px;
-  width: 82%;
+  width: 80%;
   background-color: #fff;
 `;
 export const TaskInputText = styled.Text`
